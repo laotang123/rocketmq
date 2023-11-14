@@ -108,7 +108,9 @@ public class BrokerStartup {
             }
 
             final BrokerConfig brokerConfig = new BrokerConfig();
+            //netty服务器配置，与生产者,消费者通信
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+            //netty客户端配置，与NameSever通信
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
 
             nettyClientConfig.setUseTLS(Boolean.parseBoolean(System.getProperty(TLS_ENABLE,

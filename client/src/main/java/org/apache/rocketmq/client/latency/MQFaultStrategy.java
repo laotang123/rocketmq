@@ -56,14 +56,17 @@ public class MQFaultStrategy {
     }
 
     public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
+        //todo 故障延迟机制，默认不开启；适用场景为broker多master场景，其中一个故障，对应的队列多次命中，却无法发送。导致发送失败或尝试次数过多。
         if (this.sendLatencyFaultEnable) {
             try {
+                //轮询
                 int index = tpInfo.getSendWhichQueue().getAndIncrement();
                 for (int i = 0; i < tpInfo.getMessageQueueList().size(); i++) {
                     int pos = Math.abs(index++) % tpInfo.getMessageQueueList().size();
                     if (pos < 0)
                         pos = 0;
                     MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                    //判断当前broker是否在故障时间范围内
                     if (latencyFaultTolerance.isAvailable(mq.getBrokerName()))
                         return mq;
                 }
