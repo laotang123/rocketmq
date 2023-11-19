@@ -121,12 +121,14 @@ public abstract class ServiceThread implements Runnable {
     }
 
     public void wakeup() {
+        //唤醒等待
         if (hasNotified.compareAndSet(false, true)) {
             waitPoint.countDown(); // notify
         }
     }
 
     protected void waitForRunning(long interval) {
+        //处理一批之后，紧接着又来一批，不用等待，直接交换读写队列，继续处理
         if (hasNotified.compareAndSet(true, false)) {
             this.onWaitEnd();
             return;
@@ -140,6 +142,7 @@ public abstract class ServiceThread implements Runnable {
         } catch (InterruptedException e) {
             log.error("Interrupted", e);
         } finally {
+            //等待结束后，交换读写队列直接处理
             hasNotified.set(false);
             this.onWaitEnd();
         }
