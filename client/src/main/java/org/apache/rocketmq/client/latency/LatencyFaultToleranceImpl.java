@@ -98,13 +98,19 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
 
     class FaultItem implements Comparable<FaultItem> {
         private final String name;
+        //消息发送本地延迟时间
         private volatile long currentLatency;
+
+        //broker可用的开始时间
         private volatile long startTimestamp;
 
         public FaultItem(final String name) {
             this.name = name;
         }
 
+        /**
+         * 排序级别 可用 > 本地延迟低 > 故障时间短
+         */
         @Override
         public int compareTo(final FaultItem other) {
             if (this.isAvailable() != other.isAvailable()) {
