@@ -155,6 +155,7 @@ public class DefaultMQProducerTest {
     public void testSendMessageSync_Success() throws RemotingException, InterruptedException, MQBrokerException, MQClientException {
         when(mQClientAPIImpl.getTopicRouteInfoFromNameServer(anyString(), anyLong())).thenReturn(createTopicRoute());
         SendResult sendResult = producer.send(message);
+        System.out.println(sendResult);
 
         assertThat(sendResult.getSendStatus()).isEqualTo(SendStatus.SEND_OK);
         assertThat(sendResult.getOffsetMsgId()).isEqualTo("123");
