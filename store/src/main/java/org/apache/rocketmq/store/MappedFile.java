@@ -276,9 +276,11 @@ public class MappedFile extends ReferenceResource {
 
                 try {
                     //We only append data to fileChannel or mappedByteBuffer, never both.
+                    //todo writeBuffer 不为空开启了堆外缓存，异步
                     if (writeBuffer != null || this.fileChannel.position() != 0) {
                         this.fileChannel.force(false);
                     } else {
+                        //todo 同步场景和异步非堆外缓存
                         this.mappedByteBuffer.force();
                     }
                 } catch (Throwable e) {
