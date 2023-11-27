@@ -255,7 +255,9 @@ public abstract class RebalanceImpl {
                 break;
             }
             case CLUSTERING: {
+                /*todo 获取到该Topic下的所有队列 */
                 Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
+                /*todo 获取该Topic下ConsumerGroup此消费组所有的消费者Id */
                 List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
                 if (null == mqSet) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
@@ -271,6 +273,7 @@ public abstract class RebalanceImpl {
                     List<MessageQueue> mqAll = new ArrayList<MessageQueue>();
                     mqAll.addAll(mqSet);
 
+                    /* 这两个排序极其关键 */
                     Collections.sort(mqAll);
                     Collections.sort(cidAll);
 
@@ -278,6 +281,7 @@ public abstract class RebalanceImpl {
 
                     List<MessageQueue> allocateResult = null;
                     try {
+                        /* 调用具体的算法实现进行队列分配 */
                         allocateResult = strategy.allocate(
                             this.consumerGroup,
                             this.mQClientFactory.getClientId(),

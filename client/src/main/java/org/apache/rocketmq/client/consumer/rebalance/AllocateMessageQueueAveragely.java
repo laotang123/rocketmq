@@ -31,7 +31,7 @@ public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrate
 
     @Override
     public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll,
-        List<String> cidAll) {
+                                       List<String> cidAll) {
         if (currentCID == null || currentCID.length() < 1) {
             throw new IllegalArgumentException("currentCID is empty");
         }
@@ -45,17 +45,20 @@ public class AllocateMessageQueueAveragely implements AllocateMessageQueueStrate
         List<MessageQueue> result = new ArrayList<MessageQueue>();
         if (!cidAll.contains(currentCID)) {
             log.info("[BUG] ConsumerGroup: {} The consumerId: {} not in cidAll: {}",
-                consumerGroup,
-                currentCID,
-                cidAll);
+                    consumerGroup,
+                    currentCID,
+                    cidAll);
             return result;
         }
 
+        // 当前消费者所在下标
         int index = cidAll.indexOf(currentCID);
+
+        // 队列数量对 消费者数量取余，例如队列是5，消费者是4，mod=1
         int mod = mqAll.size() % cidAll.size();
         int averageSize =
-            mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
-                + 1 : mqAll.size() / cidAll.size());
+                mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
+                        + 1 : mqAll.size() / cidAll.size());
         int startIndex = (mod > 0 && index < mod) ? index * averageSize : index * averageSize + mod;
         int range = Math.min(averageSize, mqAll.size() - startIndex);
         for (int i = 0; i < range; i++) {
