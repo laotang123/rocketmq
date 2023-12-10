@@ -186,6 +186,7 @@ public class DefaultMessageStore implements MessageStore {
             log.info("last shutdown {}", lastExitOK ? "normally" : "abnormally");
 
             if (null != scheduleMessageService) {
+                //todo 延迟消息的队列任务加载
                 result = result && this.scheduleMessageService.load();
             }
 

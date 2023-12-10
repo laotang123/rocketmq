@@ -183,6 +183,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             maxReconsumeTimes = requestHeader.getMaxReconsumeTimes();
         }
 
+        //todo 消费失败超过最大重试次数进入死信队列，客户端可以手动控制消费失败后多久重试还是直接进入死信队列(设置delayLevel<0)
         if (msgExt.getReconsumeTimes() >= maxReconsumeTimes 
             || delayLevel < 0) {
             newTopic = MixAll.getDLQTopic(requestHeader.getGroup());
@@ -196,7 +197,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                 response.setRemark("topic[" + newTopic + "] not exist");
                 return CompletableFuture.completedFuture(response);
             }
-        } else {
+        } else {//todo 否则会进入重试队列
             if (0 == delayLevel) {
                 delayLevel = 3 + msgExt.getReconsumeTimes();
             }
@@ -204,6 +205,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         }
 
         MessageExtBrokerInner msgInner = new MessageExtBrokerInner();
+        //todo 如果重试次数小于最大次数会进入重试主题，客户端默认监控了重试主题。(在asyncPutMessage方法中如果发现delayLevel>0会进入调度主题，定期将调度主题中的数据刷新到实际主题中)
         msgInner.setTopic(newTopic);
         msgInner.setBody(msgExt.getBody());
         msgInner.setFlag(msgExt.getFlag());
